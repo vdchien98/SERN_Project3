@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 function App() {
     const registerData = {
@@ -12,12 +12,11 @@ function App() {
     };
     const [register, setRegister] = useState({ ...registerData });
     const [login, setLogin] = useState({ ...loginData });
-    const [statusLogin, setStatusLogin] = useState('');
+    const [statusLogin, setStatusLogin] = useState(false);
+    axios.defaults.withCredentials = true;
 
     const handleChange = (e) => {
         setRegister((p) => {
-            // console.log('-----', { ...p });
-            // console.log('++++++', { ...p, [e.target.name]: e.target.value });
             return { ...p, [e.target.name]: e.target.value };
         });
     };
@@ -36,16 +35,37 @@ function App() {
     // console.log(login);
     const handleLogin = () => {
         axios.post('http://localhost:3001/login', { ...login }).then((response) => {
-            console.log('Dang nhap thanh cong  ', response);
+            // console.log('Dang nhap thanh cong  ', response);
             let data = response.data;
-            if (data.message) {
-                setStatusLogin(data.message);
+            if (!data.auth) {
+                setStatusLogin(false);
             } else {
-                setStatusLogin(data[0].username);
+                // console.log(data);
+                localStorage.setItem('token', data.token);
+                setStatusLogin(true);
             }
         });
     };
 
+    // useEffect(() => {
+    //     axios.get('http://localhost:3001/login').then((response) => {
+    //         // console.log(response);
+    //         if (response.data.loggedIn === true) {
+    //             setStatusLogin(response.data.user[0].username);
+    //         }
+    //     });
+    // }, []);
+
+    const userAuthenticated = () => {
+        axios.get(
+            'http://localhost:3001/isUserAuth',
+            {
+                headers: { 'x-access-token': localStorage.getItem('token') },
+            }.then((response) => {
+                console.log(response);
+            })
+        );
+    };
     return (
         <div className="App">
             <div className="register">
@@ -66,7 +86,8 @@ function App() {
                     Login
                 </button>
             </div>
-            <h1>{statusLogin}</h1>
+            {/* <h1>{statusLogin}</h1> */}
+            {statusLogin && <button onClick={userAuthenticated}>Check if Authentication</button>}
         </div>
     );
 }
