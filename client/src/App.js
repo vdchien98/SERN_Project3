@@ -36,7 +36,7 @@ function App() {
     // console.log(login);
     const handleLogin = () => {
         axios.post('http://localhost:3001/login', { ...login }).then((response) => {
-            console.log('Dang nhap thanh cong  ', response);
+            // console.log('Dang nhap thanh cong  ', response);
             let data = response.data;
             if (data.message) {
                 setStatusLogin(data.message);
