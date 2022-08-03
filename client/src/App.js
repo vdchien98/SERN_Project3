@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 function App() {
     const registerData = {
@@ -13,6 +13,7 @@ function App() {
     const [register, setRegister] = useState({ ...registerData });
     const [login, setLogin] = useState({ ...loginData });
     const [statusLogin, setStatusLogin] = useState('');
+    axios.defaults.withCredentials = true;
 
     const handleChange = (e) => {
         setRegister((p) => {
@@ -46,6 +47,14 @@ function App() {
         });
     };
 
+    useEffect(() => {
+        axios.get('http://localhost:3001/login').then((response) => {
+            // console.log(response);
+            if (response.data.loggedIn === true) {
+                setStatusLogin(response.data.user[0].username);
+            }
+        });
+    }, []);
     return (
         <div className="App">
             <div className="register">
